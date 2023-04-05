@@ -12,12 +12,20 @@ defmodule ScreenTimeAnalyzer do
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode
-    |> drop_last_2_rows
+    |> drop_empty_rows
+    |> drop_header_and_last_2_rows
     |> map_to_rows
   end
 
-  defp drop_last_2_rows(stream) do
-    Enum.slice(stream, 0..-3)
+  defp drop_empty_rows(stream) do
+    Enum.reject(stream, fn {_key, x} ->
+      x == [""]
+    end)
+  end
+
+  defp drop_header_and_last_2_rows(stream) do
+    stream
+    |> Enum.slice(1..-3)
   end
 
   defp map_to_rows(stream) do
